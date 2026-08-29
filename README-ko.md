@@ -4,11 +4,9 @@
 
 [English](./README.md) | [中文](./README-cn.md) | 한국어
 
-https://md-reader.github.io
+https://markdown.giscafer.com
 
-[![](https://badgen.net/chrome-web-store/v/medapdbncneneejhbgcjceippjlfkmkg?icon=chrome&color=607cd2)](https://chromewebstore.google.com/detail/md-reader/medapdbncneneejhbgcjceippjlfkmkg) [![](https://badgen.net/chrome-web-store/stars/medapdbncneneejhbgcjceippjlfkmkg?icon=chrome&color=607cd2)](https://chromewebstore.google.com/detail/md-reader/medapdbncneneejhbgcjceippjlfkmkg) [![](https://badgen.net/chrome-web-store/users/medapdbncneneejhbgcjceippjlfkmkg?icon=chrome&color=607cd2)](https://chromewebstore.google.com/detail/md-reader/medapdbncneneejhbgcjceippjlfkmkg)
-
-마크다운 리더는 브라우저에서 마크다운 문서를 편리하게 미리 볼 수 있게 해주는 강력한 브라우저 확장 프로그램입니다. 이 저장소 버전은 **Super MD Reader** 입니다.
+**Super MD Reader** 는 브라우저에서 마크다운 문서를 미리 볼 수 있게 해주는 브라우저 확장 프로그램입니다.
 
 - **문서 형식**: `file://`, `http://`, `https://` 프로토콜과 `.md`, `.mkd`, `.mdx`, `.markdown` 확장자 파일 미리보기 지원:
   - `https://example.com/example.md` (온라인 Markdown URL)
@@ -27,20 +25,20 @@ https://md-reader.github.io
 
 ### A. 웹 확장 스토어에서 설치
 
-<a href="https://chromewebstore.google.com/detail/md-reader/medapdbncneneejhbgcjceippjlfkmkg" target="_blank"><img src="./src/images/Chrome.png" style="width:50px"/></a>
-<a href="https://microsoftedge.microsoft.com/addons/detail/markdown-reader/djnplooklihmkcioemdjfcednfkpiodc" target="_blank"><img src="./src/images/Edge.png" style="width:50px"/></a>
-<a href="https://addons.mozilla.org/firefox/addon/markdown-reader-ext/" target="_blank"><img src="./src/images/Firefox.png" style="width:50px"/></a>
-<a href="https://chromewebstore.google.com/detail/md-reader/medapdbncneneejhbgcjceippjlfkmkg" target="_blank"><img src="./src/images/Arc.png" style="width:50px"/></a>
+<img src="./src/images/Chrome.png" alt="Chrome" style="width:50px"/>
+<img src="./src/images/Edge.png" alt="Edge" style="width:50px"/>
+<img src="./src/images/Firefox.png" alt="Firefox" style="width:50px"/>
+<img src="./src/images/Arc.png" alt="Arc" style="width:50px"/>
 
 ### B. 빌드 설치
 
 Chrome의 예:
 
-1. `md-reader` 저장소를 복제하고 빌드하세요:
+1. 이 저장소를 복제하고 빌드하세요:
 
    ```bash
    # 이 저장소를 복제합니다
-   git clone https://github.com/md-reader/md-reader.git && cd md-reader
+   git clone https://github.com/giscafer/super-markdown-reader.git && cd super-markdown-reader
 
    # 의존성을 설치합니다
    pnpm install
@@ -49,9 +47,11 @@ Chrome의 예:
    pnpm build
    ```
 
-2. 빌드가 성공적으로 완료되면 `md-reader/dist` 폴더에 `md-reader-xxx.zip` 확장 프로그램 패키지가 생성됩니다.
+2. 빌드가 성공적으로 완료되면 압축하지 않은 확장 프로그램이 `dist/md-reader` 에 생성됩니다.
 
-3. Chrome의 확장 프로그램 관리 페이지로 이동하여 확장 프로그램을 브라우저에 드래그하여 설치하세요.
+3. `chrome://extensions` 에서 **개발자 모드**를 켠 뒤 **압축해제된 확장 프로그램을 로드합니다**를 누르고 `dist/md-reader` 폴더를 선택하세요. 처음 한 번만 하면 됩니다. 이후 `pnpm build` 또는 `pnpm dev` 는 같은 폴더를 갱신합니다. 개발 중에는 `pnpm dev` 를 쓰면 확장이 자동으로 다시 로드됩니다.
+
+   스토어 업로드가 필요하면 `pnpm zip` 으로 `dist/md-reader-x.y.z.zip` 을 만들 수 있습니다.
 
 ## 사용법
 
@@ -69,14 +69,10 @@ Chrome 확장 프로그램 관리 페이지에서 설치한 "Super MD Reader" �
 
 이제 모든 작업이 완료되었습니다~! ヾ(◍°∇°◍)ﾉ
 
-이 온라인 문서를 열어 효과를 확인해보세요: [예시 문서](https://raw.githubusercontent.com/md-reader/md-reader/main/example/example.md); 또한 마크다운 문서를 브라우저로 직접 드래그하여 시도해볼 수도 있습니다!
+이 온라인 문서를 열어 효과를 확인해보세요: [예시 문서](https://raw.githubusercontent.com/giscafer/super-markdown-reader/main/example/example.md); 또한 마크다운 문서를 브라우저로 직접 드래그하여 시도해볼 수도 있습니다!
 
 질문이나 제안이 있으면 언제든지 말씀해주세요.
 
-지원을 나타내기 위해 별을 주시는 것도 저에게 큰 격려입니다~!
-
 ## 라이선스
 
-라이선스 [MIT](https://github.com/md-reader/md-reader/blob/main/LICENSE)
-
-© 2018-present, [Bener](https://github.com/Heroor)
+라이선스 [MIT](./LICENSE)

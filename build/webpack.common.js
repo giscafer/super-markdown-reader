@@ -13,7 +13,7 @@ module.exports = {
   },
   output: {
     filename: 'js/[name].js',
-    path: resolve(__dirname, '../extension'),
+    path: resolve(__dirname, '../dist/md-reader'),
     publicPath: './',
   },
   module: {
@@ -95,5 +95,17 @@ module.exports = {
         },
       ],
     }),
+    {
+      apply(compiler) {
+        compiler.hooks.done.tap('UnpackedHint', stats => {
+          if (stats.hasErrors()) {
+            return
+          }
+          console.log(
+            '\n  Unpacked extension: dist/md-reader\n  Chrome → chrome://extensions → Load unpacked → select dist/md-reader\n',
+          )
+        })
+      },
+    },
   ],
 }

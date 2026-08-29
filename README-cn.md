@@ -4,11 +4,9 @@
 
 [English](./README.md) | 中文 | [한국어](./README-ko.md)
 
-https://md-reader.github.io
+https://markdown.giscafer.com
 
-[![](https://badgen.net/chrome-web-store/v/medapdbncneneejhbgcjceippjlfkmkg?icon=chrome&color=607cd2)](https://chromewebstore.google.com/detail/md-reader/medapdbncneneejhbgcjceippjlfkmkg) [![](https://badgen.net/chrome-web-store/stars/medapdbncneneejhbgcjceippjlfkmkg?icon=chrome&color=607cd2)](https://chromewebstore.google.com/detail/md-reader/medapdbncneneejhbgcjceippjlfkmkg) [![](https://badgen.net/chrome-web-store/users/medapdbncneneejhbgcjceippjlfkmkg?icon=chrome&color=607cd2)](https://chromewebstore.google.com/detail/md-reader/medapdbncneneejhbgcjceippjlfkmkg)
-
-Markdown Reader 是一款强大的浏览器扩展程序，能让你在浏览器中快捷的预览 Markdown 文档。本仓库版本为 **Super MD Reader**。
+**Super MD Reader** 是一款浏览器扩展，能在浏览器中快捷预览 Markdown 文档。
 
 - **文档格式**: 支持预览 `file://`、`http://`、`https://` 协议以及 `.md`、`.mkd`、`.mdx`、`.markdown` 等扩展名的文件:
   - `https://example.com/example.md`（在线 Markdown 链接）
@@ -28,20 +26,20 @@ Markdown Reader 是一款强大的浏览器扩展程序，能让你在浏览器�
 
 ### A. 在浏览器应用商店安装（需要机智上网）
 
-<a href="https://chromewebstore.google.com/detail/md-reader/medapdbncneneejhbgcjceippjlfkmkg" target="_blank"><img src="./src/images/Chrome.png" style="width:50px"/></a>
-<a href="https://microsoftedge.microsoft.com/addons/detail/markdown-reader/djnplooklihmkcioemdjfcednfkpiodc" target="_blank"><img src="./src/images/Edge.png" style="width:50px"/></a>
-<a href="https://addons.mozilla.org/firefox/addon/markdown-reader-ext/" target="_blank"><img src="./src/images/Firefox.png" style="width:50px"/></a>
-<a href="https://chromewebstore.google.com/detail/md-reader/medapdbncneneejhbgcjceippjlfkmkg" target="_blank"><img src="./src/images/Arc.png" style="width:50px"/></a>
+<img src="./src/images/Chrome.png" alt="Chrome" style="width:50px"/>
+<img src="./src/images/Edge.png" alt="Edge" style="width:50px"/>
+<img src="./src/images/Firefox.png" alt="Firefox" style="width:50px"/>
+<img src="./src/images/Arc.png" alt="Arc" style="width:50px"/>
 
 ### B. 本地构建
 
 以 Chrome 为例：
 
-1. 克隆 `md-reader` 仓库到本地并编译:
+1. 克隆本仓库到本地并编译:
 
    ```bash
    # 克隆本仓库
-   git clone https://github.com/md-reader/md-reader.git && cd md-reader
+   git clone https://github.com/giscafer/super-markdown-reader.git && cd super-markdown-reader
 
    # 安装依赖
    pnpm install
@@ -50,9 +48,11 @@ Markdown Reader 是一款强大的浏览器扩展程序，能让你在浏览器�
    pnpm build
    ```
 
-2. 构建成功后，`md-reader/dist` 文件夹会生成 `md-reader-xxx.zip` 扩展程序包。
+2. 构建成功后，未打包的扩展目录在 `dist/md-reader`。
 
-3. 进入 Chrome 的扩展管理页，将扩展程序拖拽进浏览器即可安装。
+3. 打开 `chrome://extensions`，开启 **开发者模式**，点击 **加载已解压的扩展程序**，选择 `dist/md-reader` 文件夹即可。只需选一次。之后 `pnpm build` 或 `pnpm dev` 都会更新同一个目录。日常开发用 `pnpm dev`，扩展会自动热重载。
+
+   如需上传商店，可额外执行 `pnpm zip` 生成 `dist/md-reader-x.y.z.zip`。
 
 ## 使用
 
@@ -70,20 +70,10 @@ Markdown Reader 是一款强大的浏览器扩展程序，能让你在浏览器�
 
 现在所有工作都完成啦~！ヾ(◍°∇°◍)ﾉ
 
-打开这个在线文档试一下效果吧：[示例文档](https://raw.githubusercontent.com/md-reader/md-reader/main/example/example.md)；你还可以试试直接将 Markdown 文档 **拖进浏览器**！
+打开这个在线文档试一下效果吧：[示例文档](https://raw.githubusercontent.com/giscafer/super-markdown-reader/main/example/example.md)；你还可以试试直接将 Markdown 文档 **拖进浏览器**！
 
 欢迎提出你的使用问题和建议。
 
-点一颗星星（star）支持一下也是对我的鼓励哦~！
-
-## Markdown Reader 官方微信公众号
-
-扫码关注获取最新动态与技术支持：
-
-<img src="./src/images/mp-qrcode.jpg" alt="" style="width:220px"/>
-
 ## 协议
 
-License [MIT](https://github.com/md-reader/md-reader/blob/main/LICENSE)
-
-© 2018-present, [Bener](https://github.com/Heroor)
+License [MIT](./LICENSE)

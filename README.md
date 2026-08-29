@@ -4,16 +4,9 @@
 
 English | [中文](./README-cn.md) | [한국어](./README-ko.md)
 
-https://md-reader.github.io
+https://markdown.giscafer.com
 
-[![](https://badgen.net/chrome-web-store/v/medapdbncneneejhbgcjceippjlfkmkg?icon=chrome&color=607cd2)](https://chromewebstore.google.com/detail/md-reader/medapdbncneneejhbgcjceippjlfkmkg) [![](https://badgen.net/chrome-web-store/stars/medapdbncneneejhbgcjceippjlfkmkg?icon=chrome&color=607cd2)](https://chromewebstore.google.com/detail/md-reader/medapdbncneneejhbgcjceippjlfkmkg) [![](https://badgen.net/chrome-web-store/users/medapdbncneneejhbgcjceippjlfkmkg?icon=chrome&color=607cd2)](https://chromewebstore.google.com/detail/md-reader/medapdbncneneejhbgcjceippjlfkmkg)
-
-Markdown Reader is a powerful browser extension that enables you to conveniently preview Markdown documents in your browser. This fork is **Super MD Reader**.
-
-> This repository contains the old source code of Markdown Reader(2.x version) and is no longer maintained.
-> It is used only to collect issues about Markdown Reader.
->
-> Please download the 3.x version from the [website](https://md-reader.github.io).
+**Super MD Reader** is a browser extension for previewing Markdown documents in your browser.
 
 - **Document Formats**: Preview links in `file://`, `http://`, `https://` and files with `.md`, `.mkd`, `.mdx`, `.markdown` extensions:
   - `https://example.com/example.md` (online Markdown URL)
@@ -33,20 +26,20 @@ The default theme styles are stored in https://github.com/md-reader/theme. If yo
 
 ### A. Install from web extension Store
 
-<a href="https://chromewebstore.google.com/detail/md-reader/medapdbncneneejhbgcjceippjlfkmkg" target="_blank"><img src="./src/images/Chrome.png" style="width:50px"/></a>
-<a href="https://microsoftedge.microsoft.com/addons/detail/markdown-reader/djnplooklihmkcioemdjfcednfkpiodc" target="_blank"><img src="./src/images/Edge.png" style="width:50px"/></a>
-<a href="https://addons.mozilla.org/firefox/addon/markdown-reader-ext/" target="_blank"><img src="./src/images/Firefox.png" style="width:50px"/></a>
-<a href="https://chromewebstore.google.com/detail/md-reader/medapdbncneneejhbgcjceippjlfkmkg" target="_blank"><img src="./src/images/Arc.png" style="width:50px"/></a>
+<img src="./src/images/Chrome.png" alt="Chrome" style="width:50px"/>
+<img src="./src/images/Edge.png" alt="Edge" style="width:50px"/>
+<img src="./src/images/Firefox.png" alt="Firefox" style="width:50px"/>
+<img src="./src/images/Arc.png" alt="Arc" style="width:50px"/>
 
 ### B. Building installation
 
 Example of Chrome:
 
-1. Clone the `md-reader` repository and build it:
+1. Clone this repository and build it:
 
    ```bash
    # Clone this repository
-   git clone https://github.com/md-reader/md-reader.git && cd md-reader
+   git clone https://github.com/giscafer/super-markdown-reader.git && cd super-markdown-reader
 
    # Install dependencies
    pnpm install
@@ -55,9 +48,11 @@ Example of Chrome:
    pnpm build
    ```
 
-2. After a successful build, the `md-reader/dist` folder will contain the `md-reader-xxx.zip` extension package.
+2. After a successful build, the unpacked extension is at `dist/md-reader`.
 
-3. Go to the Extensions management page in Chrome and drag the extension into the browser to install it.
+3. Open `chrome://extensions`, turn on **Developer mode**, click **Load unpacked**, and select the `dist/md-reader` folder. Do this once. Later `pnpm build` or `pnpm dev` updates the same folder. Use `pnpm dev` while coding so the extension reloads automatically.
+
+   Optional: `pnpm zip` still writes `dist/md-reader-x.y.z.zip` if you need a store package.
 
 ## Usage
 
@@ -75,20 +70,10 @@ In the Chrome Extensions management page, locate the installed "Super MD Reader"
 
 Now all the work is done~!ヾ(◍°∇°◍)ﾉ
 
-Try the effect by opening this online document: [Example Document](https://raw.githubusercontent.com/md-reader/md-reader/main/example/example.md); You can also try dragging a Markdown document directly into the browser!
+Try the effect by opening this online document: [Example Document](https://raw.githubusercontent.com/giscafer/super-markdown-reader/main/example/example.md); You can also try dragging a Markdown document directly into the browser!
 
 Feel free to ask any questions or provide suggestions.
 
-Giving a star to show your support is also an encouragement for me~!
-
-## Join the WeChat Community
-
-Scan the code to get the latest news and technical support:
-
-<img src="./src/images/mp-qrcode.jpg" alt="" style="width:220px"/>
-
 ## License
 
-License [MIT](https://github.com/md-reader/md-reader/blob/main/LICENSE)
-
-© 2018-present, [Bener](https://github.com/Heroor)
+License [MIT](./LICENSE)

@@ -232,14 +232,22 @@ body.md-reader {
             color: var(--color-primary);
           }
         }
-        &[class*='md-reader__side-h'] a {
-          overflow: hidden;
-          display: -webkit-box;
-          padding: 0.3em 1.6em 0.3em 0;
-          word-break: break-all;
-          text-overflow: ellipsis;
-          -webkit-box-orient: vertical;
-          -webkit-line-clamp: 2;
+        // Match side-h1..h6 only; `side-h` also matches `side-history`.
+        &[class*='md-reader__side-h1'],
+        &[class*='md-reader__side-h2'],
+        &[class*='md-reader__side-h3'],
+        &[class*='md-reader__side-h4'],
+        &[class*='md-reader__side-h5'],
+        &[class*='md-reader__side-h6'] {
+          a {
+            overflow: hidden;
+            display: -webkit-box;
+            padding: 0.3em 1.6em 0.3em 0;
+            word-break: break-all;
+            text-overflow: ellipsis;
+            -webkit-box-orient: vertical;
+            -webkit-line-clamp: 2;
+          }
         }
         &.md-reader__side {
           .head-indent (@l) {

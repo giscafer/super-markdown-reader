@@ -68,5 +68,5 @@ function updatePage(key: keyof typeof actionMap, value?: any) {
 }
 
 chrome.runtime.setUninstallURL(
-  'https://github.com/orgs/md-reader/discussions/51',
+  'https://github.com/giscafer/super-markdown-reader/issues',
 )

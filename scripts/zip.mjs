@@ -2,7 +2,7 @@ import fs from 'fs/promises'
 import archiver from 'archiver'
 import { url, log, newVersion } from './utils.mjs'
 
-const entryDir = url('../extension/')
+const entryDir = url('../dist/md-reader/')
 const outputDir = url('../dist/')
 const extName = `md-reader-${newVersion}.zip`
 
@@ -20,7 +20,9 @@ try {
   archive.on('error', log.red)
   output.on('close', () =>
     log.green(
-      `📦[output]: ${outputDir + extName} [${archive.pointer()} bytes]`,
+      `📦[output]: ${
+        outputDir.pathname
+      }${extName} [${archive.pointer()} bytes]`,
     ),
   )
 
