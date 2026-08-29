@@ -1,6 +1,6 @@
-# Markdown Reader
+# Super MD Reader
 
-<img alt="Markdown Reader Logo" src="https://raw.githubusercontent.com/md-reader/md-reader/main/src//images/logo-stroke.svg" align="right" width="120">
+<img alt="Super MD Reader Logo" src="https://raw.githubusercontent.com/giscafer/super-markdown-reader/main/src/images/logo-stroke.svg" align="right" width="120">
 
 [English](./README.md) | 中文 | [한국어](./README-ko.md)
 
@@ -8,15 +8,16 @@ https://md-reader.github.io
 
 [![](https://badgen.net/chrome-web-store/v/medapdbncneneejhbgcjceippjlfkmkg?icon=chrome&color=607cd2)](https://chromewebstore.google.com/detail/md-reader/medapdbncneneejhbgcjceippjlfkmkg) [![](https://badgen.net/chrome-web-store/stars/medapdbncneneejhbgcjceippjlfkmkg?icon=chrome&color=607cd2)](https://chromewebstore.google.com/detail/md-reader/medapdbncneneejhbgcjceippjlfkmkg) [![](https://badgen.net/chrome-web-store/users/medapdbncneneejhbgcjceippjlfkmkg?icon=chrome&color=607cd2)](https://chromewebstore.google.com/detail/md-reader/medapdbncneneejhbgcjceippjlfkmkg)
 
-Markdown Reader 是一款强大的浏览器扩展程序，能让你在浏览器中快捷的预览 Markdown 文档。
+Markdown Reader 是一款强大的浏览器扩展程序，能让你在浏览器中快捷的预览 Markdown 文档。本仓库版本为 **Super MD Reader**。
 
 - **文档格式**: 支持预览 `file://`、`http://`、`https://` 协议以及 `.md`、`.mkd`、`.mdx`、`.markdown` 等扩展名的文件:
   - `https://example.com/example.md`（在线 Markdown 链接）
   - `file:///Users/my-project/readme.markdown`（本地 Markdown 文件，[\*需要开启特定权限](#允许本地文件访问权限)）
 - **语法插件**: 支持表情符号、上标/下标、复选框、数学公式、流程图、甘特图、目录、插入内容、缩写、注释、提醒等。
-- **主题**: 提供高质量的明暗主题和代码高亮功能。
+- **主题**: 提供高质量的明暗主题、多套主题色和代码高亮功能。
 - **实时刷新**: 支持实时文档变更和居中显示，提升阅读体验。
-- **文档组织**: 包含侧边栏目录、原始内容预览和图像媒体预览。
+- **文档组织**: 侧边栏可列出当前文件夹内的 Markdown 文件，并保留文档大纲、原始内容预览和图像媒体预览。
+- **历史记录**: 弹窗和侧边栏可查看最近浏览的文件，点击即可打开文件或进入当前文件夹内的其他文件。
 - **快捷键**: 支持通过浏览器扩展快捷键快速调用功能。
 
 ![banner](./example/example-1.png)
@@ -63,7 +64,7 @@ Markdown Reader 是一款强大的浏览器扩展程序，能让你在浏览器�
 
 > 由于 Chrome 出于安全考虑，默认关闭了扩展程序对本地文件的访问权限，所以在安装完插件后需要手动开启权限，这样就可以正常预览本地 markdown 文件了。
 
-在 Chrome 扩展程序管理页中，找到刚刚安装的 `Markdown Reader`，点击 `详细信息`，在详情页找到 `允许访问文件网址` 选项，然后切换为开启状态即可（请放心：`Markdown Reader` 只对 markdown 文件进行读取和展示的操作，不会修改和上传用户文件数据）。
+在 Chrome 扩展程序管理页中，找到刚刚安装的 `Super MD Reader`，点击 `详细信息`，在详情页找到 `允许访问文件网址` 选项，然后切换为开启状态即可（请放心：`Super MD Reader` 只对 markdown 文件进行读取和展示的操作，不会修改和上传用户文件数据）。
 
 <br/>
 

@@ -6,7 +6,7 @@
 
 <h1>
   <Icon class="icon-logo" svg={logoIcon} />
-  <a href={homepage} target="__blank">MD-READER</a>
+  <a href={homepage} target="__blank">Super MD Reader</a>
 </h1>
 
 <style>

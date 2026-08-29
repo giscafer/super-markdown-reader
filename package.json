@@ -1,9 +1,9 @@
 {
-  "name": "md-reader",
-  "version": "2.12.12",
+  "name": "super-md-reader",
+  "version": "2.13.0",
   "author": "Bener",
   "license": "MIT",
-  "description": "A markdown reader extension for chrome",
+  "description": "Super MD Reader - a markdown reader extension for chrome",
   "homepage": "https://md-reader.github.io",
   "repository": {
     "type": "git",

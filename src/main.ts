@@ -6,17 +6,33 @@ import { initPlugins } from '@/plugins'
 import lifecycle from '@/core/lifecycle'
 import className from '@/config/class-name'
 import type { Theme } from '@/config/page-themes'
-import { getDefaultData, type Data } from '@/core/data'
+import type { ColorTheme } from '@/config/color-themes'
+import { getDefaultData, type Data, type SideTab } from '@/core/data'
 import { mdRender, type MdOptions } from '@/core/markdown'
 import {
   getHeads,
   getRawContainer,
   setTheme,
+  setColorTheme,
   CONTENT_TYPES,
   darkMediaQuery,
   getMediaQueryTheme,
   toTheme,
+  xhr,
 } from '@/shared'
+import {
+  createSideNav,
+  renderFileList,
+  renderHistoryList,
+} from '@/core/side-nav'
+import {
+  dirname,
+  parseDirectoryHtml,
+  parseGithubRaw,
+  toDirUrl,
+} from '@/core/folder'
+import { getHistory, recordVisit } from '@/core/history'
+import i18n from '@/config/i18n'
 import codeIcon from '@/images/icon_code.svg'
 import sideIcon from '@/images/icon_side.svg'
 import goTopIcon from '@/images/icon_go_top.svg'
@@ -24,6 +40,7 @@ import '@/style/index.less'
 
 function main(data: Data) {
   const configData = getDefaultData(data)
+  const localize = i18n(configData.language)
   const actions = {
     reload() {
       window.location.reload()
@@ -41,6 +58,9 @@ function main(data: Data) {
     updatePageTheme(theme: Theme, prevTheme: Theme) {
       setTheme(theme)
       renderContentByTheme(theme, prevTheme)
+    },
+    updateColorTheme(color: ColorTheme) {
+      setColorTheme(color)
     },
     toggleRefresh(value) {
       clearTimeout(pollingTimer)
@@ -73,6 +93,7 @@ function main(data: Data) {
 
   /* init md page */
   setTheme(configData.pageTheme)
+  setColorTheme(configData.colorTheme)
   document.body.classList.toggle(
     className.SIDE_COLLAPSED,
     configData.hiddenSide,
@@ -120,20 +141,108 @@ function main(data: Data) {
   )
 
   /* render side */
-  const mdSide = new Ele<HTMLElement>('ul', { className: className.MD_SIDE })
+  const sideNav = createSideNav({
+    localize,
+    initialTab: configData.sideTab || 'files',
+    onTabChange(tab: SideTab) {
+      configData.sideTab = tab
+      storage.set('sideTab', tab)
+      if (tab === 'history') {
+        refreshHistory()
+      }
+    },
+    onHoverChange(value) {
+      isSideHover = value
+    },
+  })
+  const mdSide = sideNav.root
+  const outlineList = sideNav.outlineList
   let idCache: { [content: string]: number } = Object.create(null)
   let headElements: HTMLElement[] = []
   let sideLiElements: HTMLElement[] = []
   let df: Ele<DocumentFragment> = null
   let targetIndex: number = null
-  mdSide.on('mouseenter', () => {
-    isSideHover = true
-  })
-  mdSide.on('mouseleave', () => {
-    isSideHover = false
-  })
+
+  let folderRequestId = 0
+
+  function openUrl(url: string) {
+    window.location.href = url
+  }
+
+  function loadFolder(dirUrl: string) {
+    const requestId = ++folderRequestId
+    const dir = toDirUrl(dirUrl)
+    renderFileList(sideNav.filesPanel, {
+      localize,
+      dirUrl: dir,
+      entries: [],
+      currentUrl: location.href,
+      loading: true,
+      onOpen: openUrl,
+      onOpenDir: loadFolder,
+    })
+    chrome.runtime.sendMessage(
+      { action: 'listDir', data: { url: dir } },
+      async res => {
+        if (requestId !== folderRequestId) {
+          return
+        }
+        let result = chrome.runtime.lastError
+          ? { dir, entries: [], error: chrome.runtime.lastError.message }
+          : res || { dir, entries: [], error: 'Empty response' }
+        if (result.error && !parseGithubRaw(dir)) {
+          result = await listFolderFromPage(dir)
+        }
+        if (requestId !== folderRequestId) {
+          return
+        }
+        renderFileList(sideNav.filesPanel, {
+          localize,
+          dirUrl: result.dir || dir,
+          entries: result.entries || [],
+          error: result.error,
+          currentUrl: location.href,
+          onOpen: openUrl,
+          onOpenDir: loadFolder,
+        })
+      },
+    )
+  }
+
+  async function listFolderFromPage(dirUrl: string) {
+    try {
+      const dir = toDirUrl(dirUrl)
+      const request = (await xhr(dir)) as XMLHttpRequest
+      const html = request.responseText || ''
+      return { dir, entries: parseDirectoryHtml(html, dir) }
+    } catch (error) {
+      return {
+        dir: dirUrl,
+        entries: [],
+        error: error instanceof Error ? error.message : String(error),
+      }
+    }
+  }
+
+  async function refreshHistory() {
+    const items = await getHistory()
+    renderHistoryList(sideNav.historyPanel, {
+      localize,
+      items,
+      currentUrl: location.href,
+      onOpen: openUrl,
+      onOpenFolder(folder) {
+        sideNav.setTab('files')
+        configData.sideTab = 'files'
+        storage.set('sideTab', 'files')
+        loadFolder(folder)
+      },
+    })
+  }
 
   renderSide()
+  loadFolder(dirname(location.href))
+  recordVisit(location.href).then(refreshHistory)
   document.addEventListener('scroll', throttle(onScroll, 100))
 
   /* render raw toggle button */
@@ -264,8 +373,8 @@ function main(data: Data) {
     headElements = getHeads(mdContent)
     df = new Ele<DocumentFragment>('#document-fragment')
     sideLiElements = headElements.reduce(handleHeadItem, [])
-    mdSide.innerHTML = null
-    mdSide.append(df)
+    outlineList.innerHTML = null
+    outlineList.append(df)
     setTimeout(onScroll, 0)
   }
 

@@ -1,6 +1,6 @@
-# Markdown Reader
+# Super MD Reader
 
-<img alt="Markdown Reader Logo" src="https://raw.githubusercontent.com/md-reader/md-reader/main/src//images/logo-stroke.svg" align="right" width="120">
+<img alt="Super MD Reader Logo" src="https://raw.githubusercontent.com/giscafer/super-markdown-reader/main/src/images/logo-stroke.svg" align="right" width="120">
 
 English | [中文](./README-cn.md) | [한국어](./README-ko.md)
 
@@ -8,20 +8,21 @@ https://md-reader.github.io
 
 [![](https://badgen.net/chrome-web-store/v/medapdbncneneejhbgcjceippjlfkmkg?icon=chrome&color=607cd2)](https://chromewebstore.google.com/detail/md-reader/medapdbncneneejhbgcjceippjlfkmkg) [![](https://badgen.net/chrome-web-store/stars/medapdbncneneejhbgcjceippjlfkmkg?icon=chrome&color=607cd2)](https://chromewebstore.google.com/detail/md-reader/medapdbncneneejhbgcjceippjlfkmkg) [![](https://badgen.net/chrome-web-store/users/medapdbncneneejhbgcjceippjlfkmkg?icon=chrome&color=607cd2)](https://chromewebstore.google.com/detail/md-reader/medapdbncneneejhbgcjceippjlfkmkg)
 
-Markdown Reader is a powerful browser extension that enables you to conveniently preview Markdown documents in your browser.
+Markdown Reader is a powerful browser extension that enables you to conveniently preview Markdown documents in your browser. This fork is **Super MD Reader**.
 
 > This repository contains the old source code of Markdown Reader(2.x version) and is no longer maintained.
 > It is used only to collect issues about Markdown Reader.
-> 
+>
 > Please download the 3.x version from the [website](https://md-reader.github.io).
 
 - **Document Formats**: Preview links in `file://`, `http://`, `https://` and files with `.md`, `.mkd`, `.mdx`, `.markdown` extensions:
   - `https://example.com/example.md` (online Markdown URL)
   - `file:///Users/my-project/readme.markdown` (local Markdown file, \*[requires specific permissions](#allowing-file-access-permission))
 - **Syntax Plugins**: Emoji, superscripts/subscripts, checkboxes, math, flowcharts, Gantt charts, TOC, insertions, abbreviations, annotations, alerts.
-- **Themes**: High quality light/dark themes and code highlighting.
+- **Themes**: High quality light/dark themes, multiple accent colors, and code highlighting.
 - **Hot Reloading**: Real-time document changes and centered display for better reading.
-- **Document Organization**: Sidebar directory, original content preview, and image media support.
+- **Document Organization**: Sidebar file list for markdown files in the current folder, document outline, original content preview, and image media support.
+- **History**: Recent files in the popup and sidebar. Click a file to reopen it, or open the folder to jump to sibling markdown files.
 - **Shortcuts**: Quick function invocation with web extension shortcuts.
 
 ![banner](./example/example-1.png)
@@ -68,7 +69,7 @@ After installation, Chrome is now able to preview online markdown documents. How
 
 > Due to security reasons, Chrome by default disables extension access to local files. Therefore, after installing the plugin, you need to manually enable the permission in order to preview local markdown files.
 
-In the Chrome Extensions management page, locate the installed "Markdown Reader" extension, click on "Details", and find the option "Allow access to file URLs" in the details page. Switch it to the enabled state (Please rest assured that "Markdown Reader" only performs read and display operations on markdown files and will not modify or upload user file data).
+In the Chrome Extensions management page, locate the installed "Super MD Reader" extension, click on "Details", and find the option "Allow access to file URLs" in the details page. Switch it to the enabled state (Please rest assured that "Super MD Reader" only performs read and display operations on markdown files and will not modify or upload user file data).
 
 <br/>
 

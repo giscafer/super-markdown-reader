@@ -101,6 +101,54 @@
   .highlight();
 }
 
+.accent-indigo() {
+  --color-primary: #607cd2;
+  --color-primary--hover: #4c68bb;
+  --color-primary-alpha-10: rgba(96, 124, 210, 0.1);
+}
+
+.accent-emerald() {
+  --color-primary: #2f9e6d;
+  --color-primary--hover: #26855b;
+  --color-primary-alpha-10: rgba(47, 158, 109, 0.12);
+}
+
+.accent-cyan() {
+  --color-primary: #0e8f9e;
+  --color-primary--hover: #0b7582;
+  --color-primary-alpha-10: rgba(14, 143, 158, 0.12);
+}
+
+.accent-violet() {
+  --color-primary: #7c5cbf;
+  --color-primary--hover: #6849a8;
+  --color-primary-alpha-10: rgba(124, 92, 191, 0.12);
+}
+
+.accent-rose() {
+  --color-primary: #c4496a;
+  --color-primary--hover: #a83856;
+  --color-primary-alpha-10: rgba(196, 73, 106, 0.12);
+}
+
+.accent-orange() {
+  --color-primary: #d4783c;
+  --color-primary--hover: #b8622c;
+  --color-primary-alpha-10: rgba(212, 120, 60, 0.12);
+}
+
+.accent-amber() {
+  --color-primary: #c4922a;
+  --color-primary--hover: #a67a1e;
+  --color-primary-alpha-10: rgba(196, 146, 42, 0.12);
+}
+
+.accent-slate() {
+  --color-primary: #5b6570;
+  --color-primary--hover: #454d56;
+  --color-primary-alpha-10: rgba(91, 101, 112, 0.12);
+}
+
 :root {
   .light();
   @media (prefers-color-scheme: dark) {
@@ -111,6 +159,30 @@
   }
   &[data-md-reader-theme='dark'] .md-reader {
     .dark();
+  }
+  &[data-md-reader-color='indigo'] .md-reader {
+    .accent-indigo();
+  }
+  &[data-md-reader-color='emerald'] .md-reader {
+    .accent-emerald();
+  }
+  &[data-md-reader-color='cyan'] .md-reader {
+    .accent-cyan();
+  }
+  &[data-md-reader-color='violet'] .md-reader {
+    .accent-violet();
+  }
+  &[data-md-reader-color='rose'] .md-reader {
+    .accent-rose();
+  }
+  &[data-md-reader-color='orange'] .md-reader {
+    .accent-orange();
+  }
+  &[data-md-reader-color='amber'] .md-reader {
+    .accent-amber();
+  }
+  &[data-md-reader-color='slate'] .md-reader {
+    .accent-slate();
   }
   &:not([data-md-reader-theme-scheme-disabled]) {
     &[data-md-reader-theme='light'] {

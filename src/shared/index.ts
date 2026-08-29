@@ -1,5 +1,6 @@
 import Ele from '@/core/ele'
 import { rootThemePrefix, type Theme } from '@/config/page-themes'
+import type { ColorTheme } from '@/config/color-themes'
 
 export const HTML = document.documentElement
 export const HEAD = document.head
@@ -35,6 +36,10 @@ export function getHeads(
 
 export function setTheme(themeType: Theme) {
   HTML.dataset[rootThemePrefix] = themeType
+}
+
+export function setColorTheme(colorTheme?: ColorTheme) {
+  HTML.dataset.mdReaderColor = colorTheme || 'indigo'
 }
 
 export function xhr(

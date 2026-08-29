@@ -1,5 +1,6 @@
 import storage from '@/core/storage'
 import commands from '@/core/commands'
+import { listDirectory } from '@/core/folder'
 
 chrome.runtime.onMessage.addListener(({ action, data }, sender, callback) => {
   messageHandler(action, data, sender, callback)
@@ -20,6 +21,9 @@ async function messageHandler(
       break
     case 'fetch':
       fetchData(sender.url).then(callback)
+      break
+    case 'listDir':
+      listDirectory(data.url).then(callback)
       break
   }
 }
@@ -50,6 +54,7 @@ const actionMap = {
   centered: 'toggleCentered',
   mdPlugins: 'updateMdPlugins',
   pageTheme: 'updatePageTheme',
+  colorTheme: 'updateColorTheme',
   hiddenSide: 'toggleSide',
 }
 
