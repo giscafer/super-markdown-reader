@@ -12,6 +12,37 @@ export interface FolderListResult {
   error?: string
 }
 
+export function relativeUrl(fromUrl: string, toUrl: string): string {
+  try {
+    const from = new URL(fromUrl)
+    const to = new URL(toUrl)
+    if (from.protocol !== to.protocol || from.host !== to.host) {
+      return to.href
+    }
+    const fromParts = from.pathname.split('/').filter(Boolean)
+    if (!from.pathname.endsWith('/')) {
+      fromParts.pop()
+    }
+    const toParts = to.pathname.split('/').filter(Boolean)
+    const file = toParts.pop() || ''
+    let i = 0
+    while (
+      i < fromParts.length &&
+      i < toParts.length &&
+      fromParts[i] === toParts[i]
+    ) {
+      i++
+    }
+    const rel = `${'../'.repeat(fromParts.length - i)}${[
+      ...toParts.slice(i),
+      file,
+    ].join('/')}`
+    return `${rel || file}${to.search}${to.hash}`
+  } catch {
+    return toUrl
+  }
+}
+
 export function stripHashSafe(url: string): string {
   try {
     const parsed = new URL(url)
@@ -183,6 +214,37 @@ function collect(map: Map<string, FolderEntry>, entry: FolderEntry | null) {
   }
 }
 
+export function isDirectoryListingHtml(html: string): boolean {
+  if (!html) {
+    return false
+  }
+  return (
+    /addRow\s*\(\s*"/i.test(html) ||
+    /<h1[^>]*>\s*Index of\s+/i.test(html) ||
+    /<title[^>]*>\s*Index of\s+/i.test(html)
+  )
+}
+
+export function listingFromHtml(
+  html: string,
+  dirUrl: string,
+): FolderListResult {
+  const entries = parseDirectoryHtml(html, dirUrl)
+  if (entries.length) {
+    return { dir: dirUrl, entries }
+  }
+  if (isDirectoryListingHtml(html)) {
+    return { dir: dirUrl, entries: [] }
+  }
+  return {
+    dir: dirUrl,
+    entries: [],
+    error: html?.trim()
+      ? 'Unable to parse directory listing'
+      : 'Empty directory listing',
+  }
+}
+
 export function parseDirectoryHtml(
   html: string,
   dirUrl: string,
@@ -316,7 +378,7 @@ async function listHtmlDirectory(dirUrl: string): Promise<FolderListResult> {
       }
     }
     const html = await response.text()
-    return { dir: dirUrl, entries: parseDirectoryHtml(html, dirUrl) }
+    return listingFromHtml(html, dirUrl)
   } catch (error) {
     return {
       dir: dirUrl,

@@ -2,7 +2,14 @@ import Ele, { svg } from './ele'
 import className from '@/config/class-name'
 import type { HistoryItem, SideTab } from './data'
 import type { FolderEntry } from './folder'
-import { basename, parentDir, shortPath, stripHashSafe } from './folder'
+import { historyLabels } from './history'
+import {
+  basename,
+  dirname,
+  parentDir,
+  shortPath,
+  stripHashSafe,
+} from './folder'
 import fileIcon from '@/images/icon_file.svg'
 import folderIcon from '@/images/icon_folder.svg'
 import historyIcon from '@/images/icon_history.svg'
@@ -142,7 +149,15 @@ export function renderFileList(
   if (options.loading) {
     df.append(emptyItem(options.localize('side_loading')))
   } else if (options.error) {
-    df.append(emptyItem(options.localize('side_list_error')))
+    df.append(
+      emptyItem(
+        options.localize(
+          options.error === 'file_access'
+            ? 'side_file_access'
+            : 'side_list_error',
+        ),
+      ),
+    )
   } else if (!options.entries.length) {
     df.append(emptyItem(options.localize('side_empty_files')))
   } else {
@@ -195,6 +210,20 @@ export function renderFileList(
   container.append(df)
 }
 
+export function highlightCurrentFile(
+  container: Ele<HTMLElement>,
+  currentUrl: string,
+) {
+  const current = stripHashSafe(currentUrl)
+  container.queryAll('li').forEach(li => {
+    const link = li.querySelector('a') as HTMLAnchorElement | null
+    const active = Boolean(
+      link?.getAttribute('href') && stripHashSafe(link.href) === current,
+    )
+    li.classList.toggle(className.MD_SIDE_FILE_ACTIVE, active)
+  })
+}
+
 export function renderHistoryList(
   container: Ele<HTMLElement>,
   options: {
@@ -215,36 +244,42 @@ export function renderHistoryList(
     })
     const current = stripHashSafe(options.currentUrl)
     options.items.forEach(item => {
+      const labels = historyLabels(item)
+      if (!labels.url && !labels.title) {
+        return
+      }
       const li = new Ele<HTMLElement>('li', {
         className: [
-          className.MD_SIDE_FILE,
           className.MD_SIDE_HISTORY_ITEM,
-          stripHashSafe(item.url) === current
+          labels.url && stripHashSafe(labels.url) === current
             ? className.MD_SIDE_FILE_ACTIVE
             : '',
         ],
       })
       const link = new Ele<HTMLElement>('a', {
-        href: item.url,
-        title: item.url,
+        className: className.MD_SIDE_HISTORY_LINK,
+        href: labels.url || '#',
+        title: `${labels.title} · ${labels.folder}`,
       })
       link.append(svg(historyIcon))
-      const textWrap = new Ele<HTMLElement>('span', {
+      const textWrap = new Ele<HTMLElement>('div', {
         className: className.MD_SIDE_HISTORY_TEXT,
       })
-      const name = new Ele<HTMLElement>('span', {
+      const name = new Ele<HTMLElement>('div', {
         className: className.MD_SIDE_HISTORY_NAME,
       })
-      name.textContent = item.title || basename(item.url)
-      const path = new Ele<HTMLElement>('span', {
+      name.textContent = labels.title
+      const path = new Ele<HTMLElement>('div', {
         className: className.MD_SIDE_HISTORY_PATH,
       })
-      path.textContent = shortPath(item.folder)
+      path.textContent = labels.folder
       textWrap.append([name, path])
       link.append(textWrap)
       link.on('click', e => {
         e.preventDefault()
-        options.onOpen(item.url)
+        if (labels.url) {
+          options.onOpen(labels.url)
+        }
       })
 
       const folderBtn = new Ele<HTMLElement>('button', {
@@ -256,7 +291,7 @@ export function renderHistoryList(
       folderBtn.on('click', e => {
         e.preventDefault()
         e.stopPropagation()
-        options.onOpenFolder(item.folder)
+        options.onOpenFolder(labels.folderUrl || dirname(labels.url))
       })
 
       li.append([link, folderBtn])

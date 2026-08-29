@@ -139,7 +139,7 @@ body.md-reader {
           line-height: inherit;
           text-align: left;
           cursor: pointer;
-          -webkit-line-clamp: 1;
+          -webkit-line-clamp: unset;
           svg {
             width: 14px;
             height: 14px;
@@ -150,6 +150,7 @@ body.md-reader {
           }
           span {
             overflow: hidden;
+            flex: 1;
             min-width: 0;
             text-overflow: ellipsis;
             white-space: nowrap;
@@ -166,31 +167,47 @@ body.md-reader {
         }
       }
       &-history {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 28px;
+        align-items: center;
+        min-width: 0;
+      }
+      &-history-link {
         display: flex;
-        align-items: stretch;
-        a {
-          flex: 1;
-          min-width: 0;
-          padding-right: 6px;
+        align-items: center;
+        gap: 8px;
+        min-width: 0;
+        width: 100%;
+        padding: 0.4em 8px 0.4em 1.1em;
+        overflow: hidden;
+        color: inherit;
+        text-decoration: none;
+        cursor: pointer;
+        svg {
+          width: 14px;
+          height: 14px;
+          flex-shrink: 0;
+          fill: currentColor;
+          opacity: 0.72;
+          pointer-events: none;
         }
       }
       &-history-text {
-        display: flex;
-        flex-direction: column;
-        gap: 2px;
+        display: block;
+        flex: 1 1 auto;
         min-width: 0;
+        overflow: hidden;
       }
-      &-history-name {
+      &-history-name,
+      &-history-path {
+        display: block;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
       }
       &-history-path {
-        overflow: hidden;
         font-size: 11px;
         color: var(--color-text-gray);
-        text-overflow: ellipsis;
-        white-space: nowrap;
       }
       &-folder-btn {
         display: inline-flex;
@@ -198,7 +215,8 @@ body.md-reader {
         justify-content: center;
         flex-shrink: 0;
         width: 28px;
-        margin: 2px 8px 2px 0;
+        height: 28px;
+        margin-right: 8px;
         padding: 0;
         border: none;
         border-radius: 6px;

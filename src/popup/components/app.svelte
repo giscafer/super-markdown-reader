@@ -11,8 +11,8 @@
   import PAGE_THEMES from '@/config/page-themes'
   import COLOR_THEMES from '@/config/color-themes'
   import { getDefaultData, type Data, type HistoryItem } from '@/core/data'
-  import { clearHistory } from '@/core/history'
-  import { basename, listDirectory, shortPath } from '@/core/folder'
+  import { clearHistory, historyLabels, normalizeHistory } from '@/core/history'
+  import { listDirectory } from '@/core/folder'
   import type { FolderEntry } from '@/core/folder'
   import pkg from '../../../package.json'
   import i18n from '@/config/i18n'
@@ -24,6 +24,7 @@
   let expandedFolder = ''
   let folderEntries: FolderEntry[] = []
   let folderLoading = false
+  let folderError = ''
 
   // Get if file allowed access
   chrome.extension.isAllowedFileSchemeAccess(
@@ -32,7 +33,11 @@
 
   storage.get().then((_data: Data) => {
     // need an assignment to updata UI
-    data = { ...data, ..._data }
+    data = {
+      ...data,
+      ..._data,
+      visitHistory: normalizeHistory(_data.visitHistory || []),
+    }
   })
 
   $: if (data.language) {
@@ -72,11 +77,16 @@
   function loadFolderEntries(url: string) {
     folderLoading = true
     folderEntries = []
+    folderError = ''
     chrome.runtime.sendMessage(
       { action: 'listDir', data: { url } },
       async res => {
         let result = res
-        if (chrome.runtime.lastError || !result || result.error) {
+        const lastError = chrome.runtime.lastError
+        if (
+          (lastError || !result || result.error) &&
+          result?.error !== 'file_access'
+        ) {
           try {
             result = await listDirectory(url)
           } catch (error) {
@@ -85,6 +95,7 @@
         }
         folderLoading = false
         folderEntries = (result && result.entries) || []
+        folderError = folderEntries.length ? '' : (result && result.error) || ''
       },
     )
   }
@@ -229,8 +240,8 @@
                 title={item.url}
                 on:click={() => openUrl(item.url)}
               >
-                <span class="history-name">{item.title || basename(item.url)}</span>
-                <span class="history-path">{shortPath(item.folder)}</span>
+                <span class="history-name">{historyLabels(item).title}</span>
+                <span class="history-path">{historyLabels(item).folder}</span>
               </button>
               <button
                 type="button"
@@ -245,6 +256,14 @@
                 <div class="folder-files">
                   {#if folderLoading}
                     <p class="empty">{localize('side_loading')}</p>
+                  {:else if folderError}
+                    <p class="empty">
+                      {localize(
+                        folderError === 'file_access'
+                          ? 'side_file_access'
+                          : 'side_list_error',
+                      )}
+                    </p>
                   {:else if !folderEntries.length}
                     <p class="empty">{localize('side_empty_files')}</p>
                   {:else}

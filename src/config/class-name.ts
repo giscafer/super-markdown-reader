@@ -22,6 +22,7 @@ export default {
   MD_SIDE_ENTRY: p`side-entry`,
   MD_SIDE_EMPTY: p`side-empty`,
   MD_SIDE_HISTORY_ITEM: p`side-history`,
+  MD_SIDE_HISTORY_LINK: p`side-history-link`,
   MD_SIDE_HISTORY_TEXT: p`side-history-text`,
   MD_SIDE_HISTORY_NAME: p`side-history-name`,
   MD_SIDE_HISTORY_PATH: p`side-history-path`,

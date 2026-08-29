@@ -22,14 +22,19 @@ import {
 } from '@/shared'
 import {
   createSideNav,
+  highlightCurrentFile,
   renderFileList,
   renderHistoryList,
 } from '@/core/side-nav'
 import {
-  dirname,
-  parseDirectoryHtml,
+  MD_FILE_RE,
+  basename,
+  listingFromHtml,
   parseGithubRaw,
+  relativeUrl,
+  stripHashSafe,
   toDirUrl,
+  type FolderEntry,
 } from '@/core/folder'
 import { getHistory, recordVisit } from '@/core/history'
 import i18n from '@/config/i18n'
@@ -47,8 +52,8 @@ function main(data: Data) {
     },
     updateMdPlugins() {
       reloading = true
-      if (mdRaw) {
-        contentRender(mdRaw)
+      if (mdRaw != null) {
+        safeContentRender(mdRaw)
         renderSide()
       } else {
         window.location.reload()
@@ -64,6 +69,7 @@ function main(data: Data) {
     },
     toggleRefresh(value) {
       clearTimeout(pollingTimer)
+      pollingTimer = null
       value && polling()
     },
     toggleCentered(value) {
@@ -73,10 +79,15 @@ function main(data: Data) {
       onToggleSide()
     },
   }
-  chrome.runtime.onMessage.addListener(({ action, data: { key, value } }) => {
+  chrome.runtime.onMessage.addListener(message => {
+    const { action, data } = message || {}
+    if (!action || !data || !actions[action]) {
+      return
+    }
+    const { key, value } = data
     const oldValue = configData[key]
     configData[key] = value
-    actions[action]?.(value, oldValue)
+    actions[action](value, oldValue)
   })
 
   if (!configData.enable || !CONTENT_TYPES.includes(document.contentType)) {
@@ -124,12 +135,44 @@ function main(data: Data) {
       )
     }
   const contentRender = mdRenderer(mdContent)
-  contentRender(mdRaw)
+
+  function safeContentRender(code: string, options?: MdOptions) {
+    try {
+      contentRender(code, options)
+      return true
+    } catch (error) {
+      console.error('[md-reader] render failed', error)
+      return false
+    }
+  }
+
+  if (mdRaw != null) {
+    safeContentRender(mdRaw)
+  }
 
   mdContent.on(
     'click',
     async e => {
       globalEvent.emit('click', e.target)
+      const target = e.target as HTMLElement
+      const anchor = target.closest?.('a')
+      if (!anchor) {
+        return
+      }
+      const href = anchor.getAttribute('href')
+      if (!href || href.startsWith('#') || href.startsWith('javascript:')) {
+        return
+      }
+      try {
+        const resolved = new URL(href, location.href)
+        if (MD_FILE_RE.test(resolved.pathname)) {
+          e.preventDefault()
+          e.stopPropagation()
+          openUrl(resolved.toString())
+        }
+      } catch {
+        // keep native navigation for invalid URLs
+      }
     },
     true,
   )
@@ -164,57 +207,270 @@ function main(data: Data) {
   let targetIndex: number = null
 
   let folderRequestId = 0
+  let documentRequestId = 0
+  let currentFileUrl = stripHashSafe(location.href)
+  let currentDir = toDirUrl(location.href)
+  let cachedFolderEntries: FolderEntry[] = []
+  let cachedFolderDir = ''
 
   function openUrl(url: string) {
-    window.location.href = url
+    let next: URL
+    try {
+      next = new URL(url, location.href)
+    } catch {
+      window.location.href = url
+      return
+    }
+    if (MD_FILE_RE.test(next.pathname)) {
+      loadDocument(next.toString())
+      return
+    }
+    window.location.href = next.toString()
+  }
+
+  function isExtensionContextInvalidated(error?: unknown) {
+    const message =
+      typeof error === 'string'
+        ? error
+        : error instanceof Error
+        ? error.message
+        : error
+        ? String(error)
+        : chrome.runtime.lastError?.message || ''
+    return /Extension context invalidated/i.test(message)
+  }
+
+  function fetchFromPage(url: string): Promise<string> {
+    return xhr(url).then((request: XMLHttpRequest) => {
+      const text = request.responseText
+      if (text == null) {
+        throw new Error('Empty response')
+      }
+      return text
+    })
+  }
+
+  function fetchFromBackground(url: string): Promise<string> {
+    return new Promise((resolve, reject) => {
+      try {
+        chrome.runtime.sendMessage({ action: 'fetch', data: { url } }, res => {
+          if (
+            chrome.runtime.lastError ||
+            typeof res !== 'string' ||
+            res == null
+          ) {
+            reject(
+              new Error(chrome.runtime.lastError?.message || 'Empty response'),
+            )
+            return
+          }
+          resolve(res)
+        })
+      } catch (error) {
+        reject(error instanceof Error ? error : new Error(String(error)))
+      }
+    })
+  }
+
+  async function fetchMarkdown(url: string): Promise<string> {
+    if (url.startsWith('file:')) {
+      try {
+        return await fetchFromPage(url)
+      } catch {
+        return fetchFromBackground(url)
+      }
+    }
+    try {
+      return await fetchFromBackground(url)
+    } catch {
+      return fetchFromPage(url)
+    }
+  }
+
+  function setDocumentBase(fileUrl: string) {
+    const href = stripHashSafe(fileUrl)
+    let base = document.querySelector('base')
+    if (!base) {
+      base = document.createElement('base')
+      document.head.insertBefore(base, document.head.firstChild)
+    }
+    base.setAttribute('href', href)
+  }
+
+  function syncDocumentUrl(target: string) {
+    const hash = new URL(target, location.href).hash
+    const clean = stripHashSafe(target)
+    if (stripHashSafe(location.href) === clean) {
+      if (hash) {
+        location.hash = hash
+      }
+      return true
+    }
+    try {
+      history.pushState({ mdReaderUrl: clean }, '', target)
+      return true
+    } catch {
+      try {
+        history.pushState(
+          { mdReaderUrl: clean },
+          '',
+          relativeUrl(location.href, target),
+        )
+        return true
+      } catch {
+        return false
+      }
+    }
+  }
+
+  async function loadDocument(url: string, fromHistory = false) {
+    let parsed: URL
+    try {
+      parsed = new URL(url, location.href)
+    } catch {
+      window.location.href = url
+      return
+    }
+    const target = stripHashSafe(parsed.toString())
+    if (!MD_FILE_RE.test(parsed.pathname)) {
+      window.location.href = parsed.toString()
+      return
+    }
+    if (target === currentFileUrl) {
+      if (parsed.hash) {
+        location.hash = parsed.hash
+        updateAnchorPosition()
+      }
+      return
+    }
+
+    const requestId = ++documentRequestId
+    let text: string
+    try {
+      text = await fetchMarkdown(target)
+    } catch {
+      window.location.href = parsed.toString()
+      return
+    }
+    if (requestId !== documentRequestId) {
+      return
+    }
+    if (!fromHistory) {
+      syncDocumentUrl(parsed.toString())
+    }
+
+    currentFileUrl = target
+    mdRaw = text
+    if (rawContainer) {
+      rawContainer.textContent = text
+    }
+    setDocumentBase(target)
+    document.title = basename(target)
+    if (!safeContentRender(text)) {
+      window.location.href = parsed.toString()
+      return
+    }
+    renderSide()
+
+    const nextDir = toDirUrl(target)
+    if (nextDir === currentDir) {
+      highlightCurrentFile(sideNav.filesPanel, target)
+    } else {
+      currentDir = nextDir
+      loadFolder(nextDir)
+    }
+    highlightCurrentFile(sideNav.historyPanel, target)
+    recordVisit(target)
+      .then(refreshHistory)
+      .catch(() => undefined)
+    if (parsed.hash) {
+      updateAnchorPosition()
+    } else {
+      window.scrollTo(0, 0)
+    }
   }
 
   function loadFolder(dirUrl: string) {
     const requestId = ++folderRequestId
     const dir = toDirUrl(dirUrl)
-    renderFileList(sideNav.filesPanel, {
-      localize,
-      dirUrl: dir,
-      entries: [],
-      currentUrl: location.href,
-      loading: true,
-      onOpen: openUrl,
-      onOpenDir: loadFolder,
-    })
-    chrome.runtime.sendMessage(
-      { action: 'listDir', data: { url: dir } },
-      async res => {
+    currentDir = dir
+    if (cachedFolderDir !== dir) {
+      renderFileList(sideNav.filesPanel, {
+        localize,
+        dirUrl: dir,
+        entries: [],
+        currentUrl: currentFileUrl,
+        loading: true,
+        onOpen: openUrl,
+        onOpenDir: loadFolder,
+      })
+    }
+    try {
+      chrome.runtime.sendMessage(
+        { action: 'listDir', data: { url: dir } },
+        async res => {
+          if (requestId !== folderRequestId) {
+            return
+          }
+          if (
+            isExtensionContextInvalidated(chrome.runtime.lastError?.message)
+          ) {
+            return
+          }
+          let result = chrome.runtime.lastError
+            ? { dir, entries: [], error: chrome.runtime.lastError.message }
+            : res || { dir, entries: [], error: 'Empty response' }
+          if (
+            result.error &&
+            result.error !== 'file_access' &&
+            !parseGithubRaw(dir)
+          ) {
+            result = await listFolderFromPage(dir)
+          }
+          if (requestId !== folderRequestId) {
+            return
+          }
+          cachedFolderDir = result.dir || dir
+          cachedFolderEntries = result.entries || []
+          renderFileList(sideNav.filesPanel, {
+            localize,
+            dirUrl: result.dir || dir,
+            entries: cachedFolderEntries,
+            error: result.error,
+            currentUrl: currentFileUrl,
+            onOpen: openUrl,
+            onOpenDir: loadFolder,
+          })
+        },
+      )
+    } catch (error) {
+      if (isExtensionContextInvalidated(error)) {
+        return
+      }
+      void listFolderFromPage(dir).then(result => {
         if (requestId !== folderRequestId) {
           return
         }
-        let result = chrome.runtime.lastError
-          ? { dir, entries: [], error: chrome.runtime.lastError.message }
-          : res || { dir, entries: [], error: 'Empty response' }
-        if (result.error && !parseGithubRaw(dir)) {
-          result = await listFolderFromPage(dir)
-        }
-        if (requestId !== folderRequestId) {
-          return
-        }
+        cachedFolderDir = result.dir || dir
+        cachedFolderEntries = result.entries || []
         renderFileList(sideNav.filesPanel, {
           localize,
           dirUrl: result.dir || dir,
-          entries: result.entries || [],
+          entries: cachedFolderEntries,
           error: result.error,
-          currentUrl: location.href,
+          currentUrl: currentFileUrl,
           onOpen: openUrl,
           onOpenDir: loadFolder,
         })
-      },
-    )
+      })
+    }
   }
 
   async function listFolderFromPage(dirUrl: string) {
     try {
       const dir = toDirUrl(dirUrl)
       const request = (await xhr(dir)) as XMLHttpRequest
-      const html = request.responseText || ''
-      return { dir, entries: parseDirectoryHtml(html, dir) }
+      return listingFromHtml(request.responseText || '', dir)
     } catch (error) {
       return {
         dir: dirUrl,
@@ -225,25 +481,36 @@ function main(data: Data) {
   }
 
   async function refreshHistory() {
-    const items = await getHistory()
-    renderHistoryList(sideNav.historyPanel, {
-      localize,
-      items,
-      currentUrl: location.href,
-      onOpen: openUrl,
-      onOpenFolder(folder) {
-        sideNav.setTab('files')
-        configData.sideTab = 'files'
-        storage.set('sideTab', 'files')
-        loadFolder(folder)
-      },
-    })
+    try {
+      const items = await getHistory()
+      renderHistoryList(sideNav.historyPanel, {
+        localize,
+        items,
+        currentUrl: currentFileUrl,
+        onOpen: openUrl,
+        onOpenFolder(folder) {
+          sideNav.setTab('files')
+          configData.sideTab = 'files'
+          storage.set('sideTab', 'files')
+          loadFolder(folder)
+        },
+      })
+    } catch (error) {
+      if (!isExtensionContextInvalidated(error)) {
+        console.error('[md-reader] history render failed', error)
+      }
+    }
   }
 
   renderSide()
-  loadFolder(dirname(location.href))
-  recordVisit(location.href).then(refreshHistory)
+  loadFolder(currentDir)
+  recordVisit(currentFileUrl)
+    .then(refreshHistory)
+    .catch(() => undefined)
   document.addEventListener('scroll', throttle(onScroll, 100))
+  window.addEventListener('popstate', () => {
+    loadDocument(location.href, true)
+  })
 
   /* render raw toggle button */
   const rawToggleBtn = new Ele<HTMLElement>(
@@ -346,25 +613,43 @@ function main(data: Data) {
   function polling() {
     void (function watch() {
       clearTimeout(pollingTimer)
-      chrome.runtime.sendMessage({ action: 'fetch' }, res => {
-        if (res !== undefined) {
-          if (mdRaw === undefined || mdRaw === null) {
-            if (res) {
-              window.location.reload()
+      try {
+        chrome.runtime.sendMessage(
+          { action: 'fetch', data: { url: currentFileUrl } },
+          res => {
+            const lastError = chrome.runtime.lastError?.message
+            if (isExtensionContextInvalidated(lastError)) {
+              pollingTimer = null
               return
             }
-          } else if (mdRaw !== res) {
-            mdRaw = res
-            contentRender(res)
-            renderSide()
-            /* update raw content */
-            setTimeout(() => {
-              rawContainer.textContent = res
-            }, 0)
-          }
+            if (typeof res === 'string') {
+              if (mdRaw == null) {
+                if (res) {
+                  window.location.reload()
+                  return
+                }
+              } else if (mdRaw !== res) {
+                mdRaw = res
+                if (safeContentRender(res)) {
+                  renderSide()
+                  setTimeout(() => {
+                    if (rawContainer) {
+                      rawContainer.textContent = res
+                    }
+                  }, 0)
+                }
+              }
+            }
+            pollingTimer = setTimeout(watch, 500)
+          },
+        )
+      } catch (error) {
+        if (isExtensionContextInvalidated(error)) {
+          pollingTimer = null
+          return
         }
         pollingTimer = setTimeout(watch, 500)
-      })
+      }
     })()
   }
 
@@ -450,17 +735,18 @@ function main(data: Data) {
   }
 
   function renderContentByTheme(theme: Theme, prevTheme: Theme) {
-    if (configData.mdPlugins.includes('Mermaid')) {
-      if (theme === 'auto' || prevTheme === 'auto') {
-        const themeScheme = getMediaQueryTheme()
-        if (theme !== themeScheme && prevTheme !== themeScheme) {
-          contentRender(mdRaw)
+    if (!configData.mdPlugins.includes('Mermaid') || mdRaw == null) {
+      return
+    }
+    if (theme === 'auto' || prevTheme === 'auto') {
+      const themeScheme = getMediaQueryTheme()
+      if (theme !== themeScheme && prevTheme !== themeScheme) {
+        if (safeContentRender(mdRaw)) {
           renderSide()
         }
-      } else {
-        contentRender(mdRaw)
-        renderSide()
       }
+    } else if (safeContentRender(mdRaw)) {
+      renderSide()
     }
   }
 

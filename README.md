@@ -8,15 +8,17 @@ https://markdown.giscafer.com
 
 **Super MD Reader** is a browser extension for previewing Markdown documents in your browser.
 
-- **Document Formats**: Preview links in `file://`, `http://`, `https://` and files with `.md`, `.mkd`, `.mdx`, `.markdown` extensions:
+- **Document Formats**: Preview `file://`, `http://`, and `https://` URLs with `.md`, `.mkd`, `.mdx`, or `.markdown` extensions:
   - `https://example.com/example.md` (online Markdown URL)
+  - `https://raw.githubusercontent.com/owner/repo/ref/README.md` (GitHub raw file; the Files tab can list that folder)
   - `file:///Users/my-project/readme.markdown` (local Markdown file, \*[requires specific permissions](#allowing-file-access-permission))
-- **Syntax Plugins**: Emoji, superscripts/subscripts, checkboxes, math, flowcharts, Gantt charts, TOC, insertions, abbreviations, annotations, alerts.
-- **Themes**: High quality light/dark themes, multiple accent colors, and code highlighting.
-- **Hot Reloading**: Real-time document changes and centered display for better reading.
-- **Document Organization**: Sidebar file list for markdown files in the current folder, document outline, original content preview, and image media support.
-- **History**: Recent files in the popup and sidebar. Click a file to reopen it, or open the folder to jump to sibling markdown files.
-- **Shortcuts**: Quick function invocation with web extension shortcuts.
+- **Syntax Plugins**: Emoji, superscripts/subscripts, checkboxes, math (KaTeX), Mermaid, Graphviz/DOT (`dot` / `digraph` / `graphviz` fences), TOC, insertions, abbreviations, footnotes, definition lists, and alerts. Code blocks can be copied; images can be zoomed.
+- **Themes**: Light / dark / auto page themes, eight accent colors, and code highlighting.
+- **Sidebar**: **Files**, **Outline**, and **History** tabs. Browse Markdown files in the current folder (or a GitHub raw folder), open a file on the right without reloading the page, and jump to headings in the outline.
+- **History**: One recent record per folder, showing the file name and folder name in the sidebar and popup. Click the file to reopen it, or the folder icon to list sibling Markdown files.
+- **Hot Reloading**: Watch local files for changes, with optional centered layout and a raw-source toggle.
+- **Languages**: English, Simplified Chinese, Traditional Chinese, Korean, and Ukrainian.
+- **Shortcuts**: Toggle sidebar, centered layout, auto-refresh, and theme (`Alt+Shift+B` / `C` / `R` / `T`).
 
 ![banner](./example/example-1.png)
 
