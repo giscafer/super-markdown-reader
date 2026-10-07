@@ -4,7 +4,8 @@
 
 English | [中文](./README-cn.md) | [한국어](./README-ko.md)
 
-https://markdown.giscafer.com
+Install from [Super MD Reader](https://chromewebstore.google.com/detail/super-md-reader/hpncdiedfhcnojbljonoboiffpmheflf)
+
 
 **Super MD Reader** is a browser extension for previewing Markdown documents in your browser.
 
