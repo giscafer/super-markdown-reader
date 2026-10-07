@@ -4,7 +4,7 @@
 
 [English](./README.md) | 中文 | [한국어](./README-ko.md)
 
-https://markdown.giscafer.com
+在线安装： [Super MD Reader](https://chromewebstore.google.com/detail/super-md-reader/hpncdiedfhcnojbljonoboiffpmheflf)
 
 **Super MD Reader** 是一款浏览器扩展，能在浏览器中快捷预览 Markdown 文档。
 
